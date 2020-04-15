@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
     "get-port-sync": "^1.0.0",
     "jsonist": "^2.1.0",
+    "nodemon": "^2.0.3",
     "standard": "^12.0.1",
     "tape": "^4.10.2"
   },
