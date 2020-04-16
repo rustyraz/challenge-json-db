@@ -27,7 +27,7 @@ async function getData (req, res, next) {
       const finalJsonData = data ? JSON.parse(data.toString()) : {}
       // check for nested properties
       let urlProperties = req.params[0]
-      if ((urlProperties && urlProperties.trim().length !== '')) {
+      if ((urlProperties && urlProperties.replace(/\s+/g, '').trim().length !== '')) {
         if (!Object.keys(finalJsonData).length) {
           res.status(404).send('File does not contain any valid data')
         } else {
@@ -68,7 +68,7 @@ async function updateData (req, res, next) {
         let fetchedJsonData = {}
         // check for nested properties
         let urlProperties = req.params[0]
-        if ((urlProperties && urlProperties.trim().length !== '')) {
+        if ((urlProperties && urlProperties.replace(/\s+/g, '').trim().length !== '')) {
           fetchedJsonData = objectGeneration(urlProperties, fetchedJsonData, updateThisData) // add any extra property then write to the database
         }
         const writableData = JSON.stringify(fetchedJsonData)
@@ -94,7 +94,7 @@ async function updateData (req, res, next) {
       let fetchedJsonData = data ? JSON.parse(data.toString()) : {}
       // check for nested properties
       let urlProperties = req.params[0]
-      if ((urlProperties && urlProperties.trim().length !== '')) {
+      if ((urlProperties && urlProperties.replace(/\s+/g, '').trim().length !== '')) {
         fetchedJsonData = objectGeneration(urlProperties, fetchedJsonData, updateThisData) // add any extra property then write to the database
       }
       const writableData = JSON.stringify(fetchedJsonData)
@@ -138,22 +138,16 @@ async function deleteData (req, res, next) {
  * objectGeneration(urlString, jsonObject)
  * Function to generate the url nested object from the other Propertynames passed from the url
 */
-function objectGeneration (urlString, jsonObject, lastValue) {
-  let temp = []
-  let propertyNames = urlString.split('/')
-  for (let p of propertyNames) p && temp.push(p) // Filter out the empty elements
-  propertyNames = temp // reassign
-
+function objectGeneration (urlString, jsonObject, newData) {
+  let propertyNamesArray = urlString.replace(/\s+/g, '').trim().split('/').filter(n => n) // Remove empty spaces or double space => trim => split into array then filter the array
   const reducer = (obj, prop) => {
-    let lastAssign = {}
-    if ((obj[prop] && Object.keys(obj[prop]).length === 0)) {
-      lastAssign = Object.assign({}, lastValue)
-    }
-    obj[prop] = (obj[prop] && Object.keys(obj[prop]).length !== 0) ? obj[prop] : lastAssign // if a property in the array does not exist we create it and assign it an empty object
+    obj[prop] = (obj && obj[prop] && Object.keys(obj[prop]).length !== 0) ? obj[prop] : {} // if a property in the array does not exist we create it and assign it an empty object
     return obj[prop]
   }
-  propertyNames.reduce(reducer, jsonObject)
-  return jsonObject
+  propertyNamesArray.reduce(reducer, jsonObject)
+  // update the properties of the the new object
+  const updatedObject = updateProperties(jsonObject, propertyNamesArray, newData)
+  return updatedObject
 }
 
 /**
@@ -161,11 +155,22 @@ function objectGeneration (urlString, jsonObject, lastValue) {
  * function that gets the properties from the jsonData
  */
 function propertiesRetrive (pathArr, nestedObj) {
-  let tempArr = []
-  let propertyNamesArray = pathArr.split('/')
-  for (let p of propertyNamesArray) p && tempArr.push(p) // Filter out the empty elements
+  let tempArr = pathArr.replace(/\s+/g, '').trim().split('/').filter(n => n) // Remove empty spaces or double space => trim => split into array then filter the array
   const reducer = (obj, key) => {
-    return (obj && obj[key] !== 'undefined') ? obj[key] : null // dig deep into the object while iterating through the arrray keys.
+    return (obj && obj[key] !== 'undefined') ? obj[key] : null // dig deep into the object while iterating through the array values as keys to the object.
   }
   return tempArr.reduce(reducer, nestedObj)
+}
+
+function updateProperties (currentObj, propertyPath, newData) {
+  const reducerFn = (currentObj, arrKey, index) => {
+    if (index === propertyPath.length - 1) {
+      // delete currentObj[arrKey]
+      return (currentObj[arrKey] = newData)
+    }
+    return currentObj[arrKey]
+  }
+  propertyPath.reduce(reducerFn, currentObj)
+
+  return currentObj
 }
