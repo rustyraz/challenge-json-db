@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({
 app.get('/health', api.getHealth)
 app.put('/:studentId/*?', api.updateData)
 app.get('/:studentId/*?', api.getData)
-app.delete('/:studentId', api.deleteData)
+app.delete('/:studentId/*?', api.deleteData)
 
 app.use(middleware.handleError)
 app.use(middleware.notFound)
