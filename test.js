@@ -16,11 +16,14 @@ tape('health', async function (t) {
 })
 
 tape('updateData', async function (t) {
-  const url = `${endpoint}/testStudentId/propertyName1`
-  jsonist.put(url, { score: 98 }, (err, body) => {
+  const url = `${endpoint}/testStudentId/courses/calculus/quizzes/ye0ab61`
+  const valueUpdate = 98
+  jsonist.put(url, { score: valueUpdate }, (err, body) => {
     if (err) t.error(err)
     t.ok(body.success, 'Should have a successful update')
     t.ok(body.studentId, 'Should have a student ID')
+    t.ok(body.data, 'Should have data property that will contain the result data')
+    t.equals(body.data.courses.calculus.quizzes.ye0ab61.score, valueUpdate, `Value of (courses.calculus.quizzes.ye0ab61.score) should equal to ${valueUpdate}`)
     t.end()
   })
 })
@@ -48,7 +51,7 @@ tape('Get data of non existing student ID', async function (t) {
 })
 
 tape('Get property data', async function (t) {
-  const url = `${endpoint}/testStudentId/propertyName1`
+  const url = `${endpoint}/testStudentId/courses/calculus/quizzes/ye0ab61`
   jsonist.get(url, (err, body) => {
     if (err) t.error(err)
     t.ok(body.success, 'Should have a successful request')
