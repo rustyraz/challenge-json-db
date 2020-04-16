@@ -123,10 +123,7 @@ async function deleteData (req, res, next) {
   fs.readFile(fileName, 'utf-8', (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        res.status(404).json({
-          error: true,
-          message: 'File does not exist'
-        })
+        res.status(404).send('File does not exist')
       } else {
         throw err
       }
@@ -148,10 +145,7 @@ async function deleteData (req, res, next) {
             fs.writeFile(fileName, writableData, (err2) => {
               if (err2) {
                 // an error occured while trying to write data
-                res.status(400).json({
-                  error: true,
-                  message: 'Error while trying to write data'
-                })
+                res.status(404).send('Error while trying to write data')
               } else {
                 res.json({
                   success: true,
@@ -161,10 +155,7 @@ async function deleteData (req, res, next) {
               }
             })
           } else {
-            res.status(404).json({
-              error: true,
-              message: 'Property does not exist'
-            })
+            res.status(404).send('Property does not exist')
           }
         }
       } else {

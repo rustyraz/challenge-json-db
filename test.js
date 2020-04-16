@@ -60,14 +60,34 @@ tape('Get property data', async function (t) {
   })
 })
 
-// tape('Delete data', async function (t) {
-//   const url = `${endpoint}/testStudentId/`
-//   jsonist.delete(url, (err1, body1) => {
-//     if (err1) t.error(err1)
-//     t.ok(body1.success, 'Should have a successful delete')
-//     t.end()
-//   })
-// })
+tape('Delete property data', async function (t) {
+  const url = `${endpoint}/testStudentId/courses/calculus/quizzes`
+  jsonist.delete(url, (err1, body1) => {
+    if (err1) t.error(err1)
+    t.ok(body1.success, 'Should have a successful delete')
+    t.end()
+  })
+})
+
+tape('Delete property from a file that does not exist', async function (t) {
+  const url2 = `${endpoint}/testStudentId1111/courses/`
+  jsonist.delete(url2, (err2, body2) => {
+    if (err2) {
+      t.equal(err2.statusCode, 404, 'Should return a 404 when deleting a file whose studentID.json does not exist')
+    }
+    t.end()
+  })
+})
+
+tape('Delete property that does not exist data', async function (t) {
+  const url2 = `${endpoint}/testStudentId/courses/nonExistingcalculus`
+  jsonist.delete(url2, (err2, body2) => {
+    if (err2) {
+      t.equal(err2.statusCode, 404, 'Should return a 404 when deleting a property does not exist')
+    }
+    t.end()
+  })
+})
 
 tape('cleanup', function (t) {
   server.close()
